@@ -1,0 +1,61 @@
+[build-system]
+requires = []
+build-backend = "build_backend"
+backend-path = ["."]
+
+[project]
+name = "ai-change-vault"
+version = "0.1.0"
+description = "Local snapshots, turn indexing and reversions for AI-assisted coding."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{ name = "AI Change Vault contributors" }]
+keywords = ["ai", "cli", "backup", "rag", "snapshots", "developer-tools"]
+dependencies = [
+  "typer>=0.12",
+  "pydantic>=2.0",
+  "pydantic-settings>=2.0",
+  "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "pytest-cov>=5.0",
+  "ruff>=0.6",
+  "mypy>=1.10",
+]
+embeddings-local = [
+  "sentence-transformers>=3.0",
+]
+embeddings-openai = [
+  "openai>=1.0",
+]
+embeddings = [
+  "openai>=1.0",
+  "sentence-transformers>=3.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/aicv/ai-change-vault"
+Issues = "https://github.com/aicv/ai-change-vault/issues"
+
+[project.scripts]
+aicv = "aicv.entrypoint:main"
+
+[tool.pytest.ini_options]
+addopts = "--cov=aicv --cov-report=term-missing --cov-fail-under=80"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+packages = ["aicv"]

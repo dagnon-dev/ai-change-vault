@@ -1,0 +1,26 @@
+# Local editor and OS files
+.idea/
+.DS_Store
+
+# Python bytecode and caches
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Build outputs
+build/
+dist/
+*.egg-info/
+
+# Local environment files
+.venv/
+venv/
+.env
+.env.*
+
+# AICV local runtime files
+.aicv/
+.aicv.config.yaml
+AI_SESSION_LOG.md
