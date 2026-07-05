@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import io
+import os
 import tarfile
+import tempfile
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path
@@ -11,7 +14,7 @@ import tomllib
 
 PROJECT_NAME = "ai-change-vault"
 DIST_NAME = "ai_change_vault"
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 WHEEL_TAG = "py3-none-any"
 ENTRY_POINT = "aicv = aicv.cli:app"
 PYPROJECT = Path(__file__).resolve().with_name("pyproject.toml")
@@ -55,6 +58,7 @@ def build_sdist(sdist_directory, config_settings=None):  # noqa: D401, ARG001
     sdist_name = f"{PROJECT_NAME}-{VERSION}.tar.gz"
     sdist_path = sdist_directory / sdist_name
     source_root = _source_root()
+    package_root = f"{PROJECT_NAME}-{VERSION}"
 
     files = [
         "pyproject.toml",
@@ -68,15 +72,28 @@ def build_sdist(sdist_directory, config_settings=None):  # noqa: D401, ARG001
         "tests",
     ]
 
-    with tarfile.open(sdist_path, "w:gz") as archive:
-        for filename in files:
-            file_path = source_root / filename
-            if file_path.exists():
-                archive.add(file_path, arcname=f"{PROJECT_NAME}-{VERSION}/{filename}")
-        for directory in directories:
-            dir_path = source_root / directory
-            if dir_path.exists():
-                archive.add(dir_path, arcname=f"{PROJECT_NAME}-{VERSION}/{directory}")
+    with tempfile.NamedTemporaryFile(
+        suffix=".tar.gz", delete=False, dir=sdist_directory
+    ) as temp_file:
+        temp_path = Path(temp_file.name)
+    try:
+        with tarfile.open(temp_path, "w:gz") as archive:
+            pkg_info = _metadata(include_description=True).encode("utf-8")
+            pkg_info_tar = tarfile.TarInfo(name=f"{package_root}/PKG-INFO")
+            pkg_info_tar.size = len(pkg_info)
+            archive.addfile(pkg_info_tar, fileobj=io.BytesIO(pkg_info))
+            for filename in files:
+                file_path = source_root / filename
+                if file_path.exists():
+                    archive.add(file_path, arcname=f"{package_root}/{filename}")
+            for directory in directories:
+                dir_path = source_root / directory
+                if dir_path.exists():
+                    archive.add(dir_path, arcname=f"{package_root}/{directory}")
+        os.replace(temp_path, sdist_path)
+    finally:
+        if temp_path.exists():
+            temp_path.unlink(missing_ok=True)
 
     return sdist_name
 
@@ -88,14 +105,20 @@ def _build_wheel(wheel_directory: Path, *, editable: bool) -> str:
     dist_info = f"{DIST_NAME}-{VERSION}.dist-info"
 
     files = [
-        _WheelFile(
-            path=f"{DIST_NAME}.pth",
-            data=_source_root().as_posix().encode("utf-8") + b"\n",
-        ),
         _WheelFile(path=f"{dist_info}/METADATA", data=_metadata().encode("utf-8")),
         _WheelFile(path=f"{dist_info}/WHEEL", data=_wheel_metadata().encode("utf-8")),
         _WheelFile(path=f"{dist_info}/entry_points.txt", data=_entry_points().encode("utf-8")),
     ]
+    if editable:
+        files.insert(
+            0,
+            _WheelFile(
+                path=f"{DIST_NAME}.pth",
+                data=_source_root().as_posix().encode("utf-8") + b"\n",
+            ),
+        )
+    else:
+        files = _package_files(files)
 
     records: list[tuple[str, str, str]] = []
     with zipfile.ZipFile(wheel_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
@@ -117,13 +140,13 @@ def _write_metadata(metadata_directory: Path) -> str:
     return dist_info.name
 
 
-def _metadata() -> str:
+def _metadata(*, include_description: bool = False) -> str:
     lines = [
-        "Metadata-Version: 2.1\n"
-        f"Name: {PROJECT_NAME}\n"
-        f"Version: {VERSION}\n"
-        "Summary: Local snapshots, turn indexing and reversions for AI-assisted coding.\n"
-        f"Requires-Python: {PROJECT.get('requires-python', '>=3.10')}\n"
+        "Metadata-Version: 2.1\n",
+        f"Name: {PROJECT_NAME}\n",
+        f"Version: {VERSION}\n",
+        "Summary: Local snapshots, turn indexing and reversions for AI-assisted coding.\n",
+        f"Requires-Python: {PROJECT.get('requires-python', '>=3.10')}\n",
     ]
     for dependency in PROJECT.get("dependencies", []):
         lines.append(f"Requires-Dist: {dependency}\n")
@@ -131,6 +154,16 @@ def _metadata() -> str:
         lines.append(f"Provides-Extra: {extra_name}\n")
         for dependency in dependencies:
             lines.append(f'Requires-Dist: {dependency} ; extra == "{extra_name}"\n')
+    if include_description:
+        readme = PROJECT_DATA.get("project", {}).get("readme")
+        if isinstance(readme, str):
+            readme_path = Path(__file__).resolve().with_name(readme)
+            if readme_path.exists():
+                lines.append("Description-Content-Type: text/markdown; charset=UTF-8\n")
+                lines.append("\n")
+                lines.append(readme_path.read_text(encoding="utf-8"))
+                if not lines[-1].endswith("\n"):
+                    lines[-1] = lines[-1] + "\n"
     return "".join(lines)
 
 
@@ -149,6 +182,18 @@ def _entry_points() -> str:
 
 def _source_root() -> Path:
     return Path(__file__).resolve().parent
+
+
+def _package_files(files: list[_WheelFile]) -> list[_WheelFile]:
+    package_root = _source_root() / "aicv"
+    for path in sorted(package_root.rglob("*")):
+        if path.is_dir():
+            continue
+        if path.suffix == ".pyc" or "__pycache__" in path.parts:
+            continue
+        relative = path.relative_to(_source_root()).as_posix()
+        files.append(_WheelFile(path=relative, data=path.read_bytes()))
+    return files
 
 
 def _record_hash(data: bytes) -> tuple[str, str]:
