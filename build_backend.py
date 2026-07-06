@@ -14,7 +14,7 @@ import tomllib
 
 PROJECT_NAME = "ai-change-vault"
 DIST_NAME = "ai_change_vault"
-VERSION = "0.1.2"
+VERSION = "0.1.3"
 WHEEL_TAG = "py3-none-any"
 ENTRY_POINT = "aicv = aicv.cli:app"
 PYPROJECT = Path(__file__).resolve().with_name("pyproject.toml")
@@ -144,11 +144,15 @@ def _write_metadata(metadata_directory: Path) -> str:
 
 
 def _metadata(*, include_description: bool = False) -> str:
+    summary = PROJECT.get(
+        "description",
+        "Local snapshots and turn indexing for AI-assisted coding.",
+    )
     lines = [
         "Metadata-Version: 2.1\n",
         f"Name: {PROJECT_NAME}\n",
         f"Version: {VERSION}\n",
-        "Summary: Local snapshots, turn indexing and reversions for AI-assisted coding.\n",
+        f"Summary: {summary}\n",
         f"Requires-Python: {PROJECT.get('requires-python', '>=3.10')}\n",
     ]
     authors = PROJECT.get("authors", [])

@@ -1,12 +1,19 @@
 # AI Change Vault
 
-AI Change Vault (`aicv`) is a local-first CLI for versioning AI-generated code changes.
-It does not require Git, GitHub, or an external AI API to work in its default mode.
+AI Change Vault (`aicv`) is a local-first CLI for saving, indexing, and reverting AI-assisted code changes.
+Its main job is to keep each turn searchable, compact, and recoverable without depending on Git or GitHub.
+
+At a glance, `aicv`:
+
+- creates local backups before and after a change
+- indexes the turn, changed files, and validation result
+- can generate embeddings with a configurable model for semantic search
+- restores a whole project or a single file when a turn goes wrong
 
 ## What it solves
 
 When an AI changes code, the result is not always what the user expected.
-`aicv` gives every AI turn a local backup, a structured index entry, searchable metadata, and a reversible snapshot.
+`aicv` gives every turn a local backup, a structured index entry, searchable metadata, and a reversible snapshot.
 
 ## Install
 
@@ -99,6 +106,12 @@ Any coding agent can adopt the same protocol:
 
 Keyword search is exact and fast.
 Embeddings improve semantic recall, for example when the user asks for "header spacing" and the turn was indexed as "navbar layout".
+
+## Indexing And Embeddings
+
+Each turn stores a canonical document with the request, changed files, validation result, and
+backup references. When embeddings are enabled, `aicv` also generates vectors for the turn summary
+and for changed-file diffs/snippets using the configured model.
 
 ## Embeddings
 
