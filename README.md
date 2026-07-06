@@ -17,35 +17,27 @@ When an AI changes code, the result is not always what the user expected.
 
 ## Install
 
-Base install:
+`aicv` is a Python CLI for any repository type, including Node.js repos.
+Install it into a Python environment on your machine, then point it at the project you want to track.
 
 ```bash
-pip install -e .
+pip install ai-change-vault
 ```
 
-Developer install:
+Local embeddings for that same Python environment:
 
 ```bash
-pip install -e ".[dev]"
+pip install "ai-change-vault[embeddings-local]"
 ```
 
-Semantic search install:
+OpenAI embeddings:
 
 ```bash
-pip install -e ".[dev,embeddings]"
+pip install "ai-change-vault[embeddings-openai]"
 ```
 
-Local embeddings only:
-
-```bash
-pip install -e ".[dev,embeddings-local]"
-```
-
-OpenAI embeddings only:
-
-```bash
-pip install -e ".[dev,embeddings-openai]"
-```
+If your Python environment is system-managed, you may need `--break-system-packages`, or you can use a
+virtual environment instead.
 
 ## Core flow
 
@@ -60,8 +52,8 @@ pip install -e ".[dev,embeddings-openai]"
 ## Commands
 
 ```bash
+aicv init .
 aicv --version
-aicv init
 aicv doctor
 aicv backup --message "before refactor navbar"
 aicv index --turn 1 --request "Change login button color" --files "src/components/Navbar.tsx" --validation "lint + tests OK"
@@ -85,18 +77,6 @@ aicv embeddings rebuild
 - Human-readable session log in `AI_SESSION_LOG.md`
 - Compact turn backups in `.aicv/backups/` when both before and after snapshots are indexed
 
-## How AI agents should use it
-
-Any coding agent can adopt the same protocol:
-
-1. Read `scripts/AI_INSTRUCTIONS.md` before editing.
-2. Run `aicv backup --message "before: <task>"`.
-3. Make the requested changes.
-4. Validate the result.
-5. Run `aicv backup --message "after: <summary>"`.
-6. Run `aicv index ...` with the original request, files changed, validation, and backup paths.
-7. Use `aicv search` to find earlier changes and `aicv revert` to restore a prior state.
-
 ## Search modes
 
 `aicv` uses a hybrid retrieval model:
@@ -107,6 +87,7 @@ Any coding agent can adopt the same protocol:
 Keyword search is exact and fast.
 Embeddings improve semantic recall, for example when the user asks for "header spacing" and the turn was indexed as "navbar layout".
 If a local embedding model cannot be downloaded, `aicv` keeps the rest of the workflow usable and falls back to keyword-only behavior.
+
 
 ## Indexing And Embeddings
 

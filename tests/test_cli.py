@@ -13,7 +13,7 @@ def test_cli_version() -> None:
     assert result.exit_code == 0
     assert "AI Change Vault" in result.output
     assert "version" in result.output
-    assert "0.1.4" in result.output
+    assert "0.2.0" in result.output
 
 
 def test_cli_embeddings_status() -> None:

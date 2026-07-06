@@ -1,5 +1,15 @@
 # Usage
 
+`aicv` is installed into a Python environment on your machine, then run against whatever repository
+you want to manage. The target repository can be Python, Node.js, or anything else.
+If you want local semantic embeddings, install the extra in that same Python environment:
+
+```bash
+pip install "ai-change-vault[embeddings-local]"
+```
+
+If the environment is system-managed, add `--break-system-packages` or use a virtual environment.
+
 ## Create a backup
 
 ```bash

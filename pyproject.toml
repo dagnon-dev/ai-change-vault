@@ -5,7 +5,7 @@ backend-path = ["."]
 
 [project]
 name = "ai-change-vault"
-version = "0.1.4"
+version = "0.2.0"
 description = "Local snapshots, turn indexing, and configurable semantic embeddings for AI-assisted coding."
 readme = "README.md"
 requires-python = ">=3.10"
