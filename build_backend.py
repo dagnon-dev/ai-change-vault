@@ -55,10 +55,10 @@ def build_editable(wheel_directory, config_settings=None, metadata_directory=Non
 def build_sdist(sdist_directory, config_settings=None):  # noqa: D401, ARG001
     sdist_directory = Path(sdist_directory)
     sdist_directory.mkdir(parents=True, exist_ok=True)
-    sdist_name = f"{PROJECT_NAME}-{VERSION}.tar.gz"
+    sdist_name = f"{DIST_NAME}-{VERSION}.tar.gz"
     sdist_path = sdist_directory / sdist_name
     source_root = _source_root()
-    package_root = f"{PROJECT_NAME}-{VERSION}"
+    package_root = f"{DIST_NAME}-{VERSION}"
 
     files = [
         "pyproject.toml",
