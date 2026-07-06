@@ -31,12 +31,15 @@ aicv revert --turn turn-1
 - Embeddings are optional.
 - `sentence-transformers` is the recommended local option.
 - `openai` and `ollama` are supported when configured.
+- If the embedding model cannot be downloaded, the CLI reports the issue and continues in keyword-only mode.
 
 If the embedding model changes, run:
 
 ```bash
 aicv embeddings rebuild
 ```
+
+`aicv embeddings rebuild` handles download or provider failures without crashing the rest of the project flow.
 
 ## Agent rules
 

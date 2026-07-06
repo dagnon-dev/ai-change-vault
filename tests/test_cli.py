@@ -13,7 +13,7 @@ def test_cli_version() -> None:
     assert result.exit_code == 0
     assert "AI Change Vault" in result.output
     assert "version" in result.output
-    assert "0.1.3" in result.output
+    assert "0.1.4" in result.output
 
 
 def test_cli_embeddings_status() -> None:
@@ -24,6 +24,48 @@ def test_cli_embeddings_status() -> None:
         assert "Embedding Status" in result.output
         assert "embedding_provider" in result.output
         assert "status: disabled" in result.output
+
+
+def test_cli_embeddings_status_reports_unavailable_provider(monkeypatch) -> None:
+    with runner.isolated_filesystem():
+        Path(".aicv.config.yaml").write_text(
+            "embedding_provider: sentence-transformers\n",
+            encoding="utf-8",
+        )
+
+        def fail_create_provider(_config):  # type: ignore[no-untyped-def]
+            raise RuntimeError("model download failed")
+
+        monkeypatch.setattr(
+            "aicv.cli.create_embedding_provider",
+            fail_create_provider,
+        )
+
+        result = runner.invoke(app, ["embeddings", "status"])
+
+        assert result.exit_code == 0
+        assert "status: unavailable (model download failed)" in result.output
+
+
+def test_cli_embeddings_rebuild_reports_unavailable_provider(monkeypatch) -> None:
+    with runner.isolated_filesystem():
+        Path(".aicv.config.yaml").write_text(
+            "embedding_provider: sentence-transformers\n",
+            encoding="utf-8",
+        )
+
+        def fail_create_provider(_config):  # type: ignore[no-untyped-def]
+            raise RuntimeError("model download failed")
+
+        monkeypatch.setattr(
+            "aicv.cli.create_embedding_provider",
+            fail_create_provider,
+        )
+
+        result = runner.invoke(app, ["embeddings", "rebuild"])
+
+        assert result.exit_code == 0
+        assert "embeddings: unavailable (model download failed)" in result.output
 
 
 def test_cli_init_and_doctor() -> None:

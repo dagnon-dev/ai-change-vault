@@ -68,6 +68,7 @@ aicv embeddings rebuild
 ```
 
 This prints the resolved project root and all active configuration values, including the embedding provider and model.
+If the model download fails or the provider is unavailable, `aicv` keeps the rest of the project usable and reports the embedding problem explicitly instead of aborting the command.
 
 ## Embedding configuration
 
@@ -82,5 +83,6 @@ backup_retention: 20
 ```
 
 If the provider package is not installed, `aicv` keeps working in keyword-only mode.
+If a local model download fails, rebuild and status commands report the failure and the library still falls back to keyword-only behavior.
 
 Legacy `.aicv.yaml` files are still supported for existing repos, but new projects should use `.aicv.config.yaml`.

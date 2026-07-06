@@ -33,6 +33,13 @@ embeddings_app = typer.Typer(help="Manage semantic embeddings.")
 app.add_typer(embeddings_app, name="embeddings")
 
 
+def _try_create_embedding_provider(config):
+    try:
+        return create_embedding_provider(config), None
+    except Exception as exc:  # pragma: no cover - defensive fallback
+        return None, exc
+
+
 def version_callback(value: bool) -> None:
     if value:
         typer.echo(
@@ -431,7 +438,7 @@ def embeddings_status() -> None:
 
     root = find_project_root()
     resolved = load_config(root)
-    provider = create_embedding_provider(resolved)
+    provider, provider_error = _try_create_embedding_provider(resolved)
     store = load_embedding_store(root, resolved)
 
     counts = Counter(record.kind for record in store.records)
@@ -450,6 +457,9 @@ def embeddings_status() -> None:
             ],
         )
     )
+    if provider_error is not None:
+        typer.echo(f"status: unavailable ({provider_error})")
+        return
     if provider is None:
         typer.echo("status: disabled")
         return
@@ -462,9 +472,13 @@ def embeddings_rebuild() -> None:
 
     root = find_project_root()
     resolved = load_config(root)
-    provider = create_embedding_provider(resolved)
+    provider, provider_error = _try_create_embedding_provider(resolved)
+    if provider_error is not None:
+        typer.echo(f"embeddings: unavailable ({provider_error})")
+        return
     if provider is None:
-        raise typer.BadParameter("embedding_provider is disabled in configuration")
+        typer.echo("embeddings: disabled")
+        return
 
     turns = load_turns(root, resolved)
     if not turns:
@@ -472,8 +486,13 @@ def embeddings_rebuild() -> None:
         return
 
     count = 0
+    failed: list[str] = []
     for turn in turns:
-        record = upsert_turn_embedding(root, resolved, turn, provider=provider)
+        try:
+            record = upsert_turn_embedding(root, resolved, turn, provider=provider)
+        except Exception as exc:  # pragma: no cover - defensive fallback
+            failed.append(f"{turn.turn_id}: {exc}")
+            continue
         if record is not None:
             count += 1
 
@@ -481,6 +500,10 @@ def embeddings_rebuild() -> None:
         f"Rebuilt {count} embedding record(s) using "
         f"{provider.provider_name}/{provider.model_name}"
     )
+    if failed:
+        typer.echo("Skipped turns with embedding errors:")
+        for item in failed:
+            typer.echo(f"- {item}")
 
 
 def _count_files(path: Path) -> int:

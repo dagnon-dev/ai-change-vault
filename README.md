@@ -106,6 +106,7 @@ Any coding agent can adopt the same protocol:
 
 Keyword search is exact and fast.
 Embeddings improve semantic recall, for example when the user asks for "header spacing" and the turn was indexed as "navbar layout".
+If a local embedding model cannot be downloaded, `aicv` keeps the rest of the workflow usable and falls back to keyword-only behavior.
 
 ## Indexing And Embeddings
 
@@ -154,6 +155,7 @@ excludes:
 - Changed files also generate diff and snippet payloads when a before snapshot is available.
 - Search ranks results using keywords first and semantic similarity second.
 - If embeddings are misconfigured or unavailable, `aicv` falls back to keyword search.
+- `aicv embeddings rebuild` reports model download or provider errors without crashing the rest of the CLI.
 
 ## Reverting
 
