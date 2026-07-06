@@ -78,6 +78,27 @@ class EmbeddingStore(BaseModel):
     records: list[EmbeddingRecord] = Field(default_factory=list)
 
 
+class CompactBackupEntry(BaseModel):
+    path: str
+    status: Literal["added", "deleted", "modified", "renamed"]
+    before_path: str | None = None
+    after_path: str | None = None
+
+
+class CompactBackupManifest(BaseModel):
+    schema_version: int = 1
+    format: str = "compact-backup"
+    turn_id: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    source_before: str | None = None
+    source_after: str | None = None
+    entries: list[CompactBackupEntry] = Field(default_factory=list)
+
+    @field_serializer("created_at")
+    def serialize_created_at(self, value: datetime) -> str:
+        return value.isoformat()
+
+
 class RevertResult(BaseModel):
     turn_id: str
     state: str

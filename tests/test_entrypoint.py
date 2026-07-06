@@ -1,3 +1,4 @@
+import runpy
 import subprocess
 import sys
 from pathlib import Path
@@ -13,7 +14,7 @@ def test_entrypoint_version(capsys) -> None:  # type: ignore[no-untyped-def]
 
     captured = capsys.readouterr()
     assert "AI Change Vault" in captured.out
-    assert "0.1.1" in captured.out
+    assert "0.1.2" in captured.out
 
 
 def test_entrypoint_help(capsys) -> None:  # type: ignore[no-untyped-def]
@@ -38,4 +39,19 @@ def test_main_module_direct_execution() -> None:
 
     assert result.returncode == 0
     assert "AI Change Vault" in result.stdout
-    assert "0.1.1" in result.stdout
+    assert "0.1.2" in result.stdout
+
+
+def test_main_module_in_process(monkeypatch, capsys) -> None:  # type: ignore[no-untyped-def]
+    monkeypatch.setattr(sys, "argv", ["aicv/__main__.py", "--version"])
+
+    try:
+        runpy.run_path(
+            Path(__file__).resolve().parent.parent / "aicv" / "__main__.py",
+            run_name="__main__",
+        )
+    except SystemExit as exc:
+        assert exc.code == 0
+
+    captured = capsys.readouterr()
+    assert "AI Change Vault" in captured.out

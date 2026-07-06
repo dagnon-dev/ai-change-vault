@@ -76,6 +76,7 @@ aicv embeddings rebuild
 - Keyword index in `.aicv/rag/index.json`
 - Optional turn, diff, and snippet embedding vectors in `.aicv/rag/embeddings.json`
 - Human-readable session log in `AI_SESSION_LOG.md`
+- Compact turn backups in `.aicv/backups/` when both before and after snapshots are indexed
 
 ## How AI agents should use it
 
@@ -119,6 +120,7 @@ Good starting points are modern retrieval-oriented models from the BGE, E5, or O
 
 ```yaml
 backup_dir: .aicv/backups
+backup_retention: 20
 rag_dir: .aicv/rag
 embedding_provider: sentence-transformers
 embedding_model: BAAI/bge-base-en-v1.5
@@ -162,6 +164,7 @@ Create `.aicv.config.yaml` in the project root:
 
 ```yaml
 backup_dir: .aicv/backups
+backup_retention: 20
 rag_dir: .aicv/rag
 embedding_provider: none
 embedding_model: sentence-transformers/all-MiniLM-L6-v2

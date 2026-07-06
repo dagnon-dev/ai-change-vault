@@ -32,6 +32,8 @@ The index command stores:
 - keyword index entries
 - optional embedding vector for the turn
 
+If both `backup_before` and `backup_after` are provided, the stored backup is compacted down to the files that actually changed.
+
 ## Search
 
 ```bash
@@ -76,6 +78,7 @@ embedding_provider: sentence-transformers
 embedding_model: BAAI/bge-base-en-v1.5
 embedding_weight: 0.7
 keyword_weight: 0.3
+backup_retention: 20
 ```
 
 If the provider package is not installed, `aicv` keeps working in keyword-only mode.

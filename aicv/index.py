@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
 
-from .backup import infer_backup_for_turn
+from .backup import build_compact_backup, infer_backup_for_turn
 from .config import AICVConfig, find_project_root, load_config
 from .embeddings import create_embedding_provider, upsert_turn_embeddings
 from .models import TurnDocument
@@ -43,6 +44,27 @@ def index_turn(
         inferred = infer_backup_for_turn(project_root, active_config, document.turn_id)
         if inferred is not None:
             document.backup_before = inferred.as_posix()
+
+    before_backup = document.backup_before
+    after_backup = backup_after
+    compact_backup = build_compact_backup(
+        project_root,
+        active_config,
+        document.turn_id,
+        backup_before=before_backup,
+        backup_after=after_backup,
+    )
+    if compact_backup is not None:
+        document.backup_before = compact_backup.as_posix()
+        document.backup_after = compact_backup.as_posix()
+        for source in {before_backup, after_backup}:
+            if not source:
+                continue
+            source_path = Path(source)
+            if not source_path.is_absolute():
+                source_path = project_root / source_path
+            if source_path.exists() and source_path != compact_backup:
+                shutil.rmtree(source_path, ignore_errors=True)
 
     turns_dir = active_config.rag_path(project_root) / "turns"
     ensure_directory(turns_dir)

@@ -5,13 +5,26 @@ backend-path = ["."]
 
 [project]
 name = "ai-change-vault"
-version = "0.1.1"
+version = "0.1.2"
 description = "Local snapshots, turn indexing and reversions for AI-assisted coding."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
 authors = [{ name = "AI Change Vault contributors" }]
 keywords = ["ai", "cli", "backup", "rag", "snapshots", "developer-tools"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development :: Build Tools",
+  "Topic :: Software Development :: Version Control",
+  "Typing :: Typed",
+]
 dependencies = [
   "typer>=0.12",
   "pydantic>=2.0",
@@ -39,7 +52,9 @@ embeddings = [
 
 [project.urls]
 Homepage = "https://github.com/aicv/ai-change-vault"
+Repository = "https://github.com/aicv/ai-change-vault"
 Issues = "https://github.com/aicv/ai-change-vault/issues"
+Documentation = "https://github.com/aicv/ai-change-vault#readme"
 
 [project.scripts]
 aicv = "aicv.entrypoint:main"

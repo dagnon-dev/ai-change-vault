@@ -21,7 +21,8 @@ AI Change Vault is intentionally local, deterministic, and small enough to run i
 4. `index` optionally stores a turn summary vector plus diff/snippet vectors in `.aicv/rag/embeddings.json`.
 5. `search` loads turn JSON documents and ranks them.
 6. `search` uses embeddings only when the configured provider and model match stored vectors.
-7. `revert` resolves the turn document and restores from `backup_before` or `backup_after`.
+7. `index` can compact a turn into a per-file backup bundle when both before and after snapshots are available.
+8. `revert` resolves the turn document and restores from `backup_before` or `backup_after`.
 
 ## Retrieval design
 
@@ -58,6 +59,14 @@ Each record stores:
 - `updated_at`
 
 This allows multiple providers or models to coexist in the same project history.
+
+## Compact backups
+
+When both `backup_before` and `backup_after` are indexed, `aicv` can collapse the full snapshots into a compact turn bundle that stores only changed files plus a manifest. This keeps revert support while avoiding repeated copies of the full repository.
+
+## Retention
+
+`backup_retention` controls how many backup directories are kept under `.aicv/backups`. Older directories are pruned automatically after new backups or compaction.
 
 ## Provider options
 

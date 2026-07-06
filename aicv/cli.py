@@ -283,6 +283,7 @@ def config() -> None:
             [
                 ("project_root", root),
                 ("backup_dir", resolved.backup_path(root)),
+                ("backup_retention", resolved.backup_retention),
                 ("rag_dir", resolved.rag_path(root)),
                 ("session_log", resolved.session_log_path(root)),
                 ("embedding_provider", resolved.embedding_provider),
@@ -378,12 +379,13 @@ def doctor() -> None:
             issues.append(f"embedding provider unavailable: {exc}")
 
     summary_rows = [
-        ("project_root", root),
-        ("config_path", config_path),
-        ("backup_dir", backup_dir),
-        ("rag_dir", rag_dir),
-        ("session_log", session_log),
-        ("embedding_provider", resolved.embedding_provider),
+                ("project_root", root),
+                ("config_path", config_path),
+                ("backup_dir", backup_dir),
+                ("backup_retention", resolved.backup_retention),
+                ("rag_dir", rag_dir),
+                ("session_log", session_log),
+                ("embedding_provider", resolved.embedding_provider),
         ("embedding_model", resolved.embedding_model),
         ("auto_index", resolved.auto_index),
         (

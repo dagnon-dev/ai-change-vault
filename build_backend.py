@@ -14,7 +14,7 @@ import tomllib
 
 PROJECT_NAME = "ai-change-vault"
 DIST_NAME = "ai_change_vault"
-VERSION = "0.1.1"
+VERSION = "0.1.2"
 WHEEL_TAG = "py3-none-any"
 ENTRY_POINT = "aicv = aicv.cli:app"
 PYPROJECT = Path(__file__).resolve().with_name("pyproject.toml")
@@ -105,7 +105,10 @@ def _build_wheel(wheel_directory: Path, *, editable: bool) -> str:
     dist_info = f"{DIST_NAME}-{VERSION}.dist-info"
 
     files = [
-        _WheelFile(path=f"{dist_info}/METADATA", data=_metadata().encode("utf-8")),
+        _WheelFile(
+            path=f"{dist_info}/METADATA",
+            data=_metadata(include_description=True).encode("utf-8"),
+        ),
         _WheelFile(path=f"{dist_info}/WHEEL", data=_wheel_metadata().encode("utf-8")),
         _WheelFile(path=f"{dist_info}/entry_points.txt", data=_entry_points().encode("utf-8")),
     ]
@@ -148,6 +151,40 @@ def _metadata(*, include_description: bool = False) -> str:
         "Summary: Local snapshots, turn indexing and reversions for AI-assisted coding.\n",
         f"Requires-Python: {PROJECT.get('requires-python', '>=3.10')}\n",
     ]
+    authors = PROJECT.get("authors", [])
+    if isinstance(authors, list) and authors:
+        first_author = authors[0]
+        if isinstance(first_author, dict):
+            name = first_author.get("name")
+            email = first_author.get("email")
+            if name:
+                lines.append(f"Author: {name}\n")
+            if email:
+                lines.append(f"Author-email: {email}\n")
+
+    license_value = PROJECT.get("license")
+    if isinstance(license_value, str):
+        lines.append(f"License: {license_value}\n")
+    elif isinstance(license_value, dict):
+        license_text = license_value.get("text")
+        license_file = license_value.get("file")
+        if isinstance(license_text, str):
+            lines.append(f"License: {license_text}\n")
+        elif isinstance(license_file, str):
+            lines.append(f"License: {license_file}\n")
+
+    keywords = PROJECT.get("keywords", [])
+    if isinstance(keywords, list) and keywords:
+        lines.append(f"Keywords: {', '.join(str(keyword) for keyword in keywords)}\n")
+
+    for classifier in PROJECT.get("classifiers", []):
+        lines.append(f"Classifier: {classifier}\n")
+
+    project_urls = PROJECT.get("urls", {})
+    if isinstance(project_urls, dict):
+        for label, url in project_urls.items():
+            lines.append(f"Project-URL: {label}, {url}\n")
+
     for dependency in PROJECT.get("dependencies", []):
         lines.append(f"Requires-Dist: {dependency}\n")
     for extra_name, dependencies in PROJECT.get("optional-dependencies", {}).items():

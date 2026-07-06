@@ -34,6 +34,7 @@ class AICVConfig(BaseSettings):
     """Runtime configuration loaded from defaults, .aicv.config.yaml and AICV_* env vars."""
 
     backup_dir: str = ".aicv/backups"
+    backup_retention: int = 20
     rag_dir: str = ".aicv/rag"
     excludes: list[str] = Field(default_factory=lambda: list(DEFAULT_EXCLUDES))
     embedding_provider: Literal["none", "openai", "ollama", "sentence-transformers"] = "none"
@@ -113,6 +114,7 @@ def default_project_config(project_name: str | None = None) -> dict[str, object]
         "auto_backup": True,
         "auto_index": False,
         "backup_dir": ".aicv/backups",
+        "backup_retention": 20,
         "rag_dir": ".aicv/rag",
         "embedding_provider": "none",
         "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
@@ -142,6 +144,7 @@ def _load_env_overrides() -> dict[str, object]:
     values: dict[str, object] = {}
     mapping = {
         "AICV_BACKUP_DIR": "backup_dir",
+        "AICV_BACKUP_RETENTION": "backup_retention",
         "AICV_RAG_DIR": "rag_dir",
         "AICV_EMBEDDING_PROVIDER": "embedding_provider",
         "AICV_EMBEDDING_MODEL": "embedding_model",
