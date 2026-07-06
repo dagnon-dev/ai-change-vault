@@ -2,6 +2,7 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
+from aicv._version import __version__
 from aicv.cli import app
 
 runner = CliRunner()
@@ -13,7 +14,7 @@ def test_cli_version() -> None:
     assert result.exit_code == 0
     assert "AI Change Vault" in result.output
     assert "version" in result.output
-    assert "0.2.2" in result.output
+    assert __version__ in result.output
 
 
 def test_cli_embeddings_status() -> None:

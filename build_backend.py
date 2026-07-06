@@ -12,9 +12,10 @@ from pathlib import Path
 
 import tomllib
 
+from aicv._version import __version__ as VERSION
+
 PROJECT_NAME = "ai-change-vault"
 DIST_NAME = "ai_change_vault"
-VERSION = "0.2.2"
 WHEEL_TAG = "py3-none-any"
 ENTRY_POINT = "aicv = aicv.cli:app"
 PYPROJECT = Path(__file__).resolve().with_name("pyproject.toml")

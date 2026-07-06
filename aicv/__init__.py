@@ -1,3 +1,3 @@
 """AI Change Vault package."""
 
-__version__ = "0.2.2"
+from ._version import __version__ as __version__

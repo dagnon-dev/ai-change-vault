@@ -3,6 +3,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+from aicv._version import __version__
 from aicv.entrypoint import main
 
 
@@ -14,7 +15,7 @@ def test_entrypoint_version(capsys) -> None:  # type: ignore[no-untyped-def]
 
     captured = capsys.readouterr()
     assert "AI Change Vault" in captured.out
-    assert "0.2.2" in captured.out
+    assert __version__ in captured.out
 
 
 def test_entrypoint_help(capsys) -> None:  # type: ignore[no-untyped-def]
@@ -39,7 +40,7 @@ def test_main_module_direct_execution() -> None:
 
     assert result.returncode == 0
     assert "AI Change Vault" in result.stdout
-    assert "0.2.2" in result.stdout
+    assert __version__ in result.stdout
 
 
 def test_main_module_in_process(monkeypatch, capsys) -> None:  # type: ignore[no-untyped-def]
